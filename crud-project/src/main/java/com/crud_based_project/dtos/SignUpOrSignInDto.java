@@ -1,5 +1,6 @@
 package com.crud_based_project.dtos;
 
+import com.crud_based_project.entities.ROLE;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class SignUpOrSignInDto {
     private String phone;
     private String isActive;
     private String photo;
+    private ROLE role;
     private MultipartFile file;
     private String token;
     private String refreshToken;

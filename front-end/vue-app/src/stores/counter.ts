@@ -1,12 +1,44 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
+import { ref, computed } from "vue";
+import { defineStore } from "pinia";
+import axios from "axios";
+import { useToast } from "vue-toastification";
+import { useRouter } from "vue-router";
 
-export const useCounterStore = defineStore('counter', () => {
-  const count = ref(0)
-  const doubleCount = computed(() => count.value * 2)
-  function increment() {
-    count.value++
-  }
+export const useCounterStore = defineStore("main", () => {
+  const role = ref<string>("");
+  const toast = useToast();
+  const router = useRouter();
 
-  return { count, doubleCount, increment }
-})
+  const login = async (email: string, password: string) => {
+    const obj = {
+      email: email,
+      password: password,
+    };
+    try {
+      const res = await axios.post(`/api/auth/login`, obj);
+      if (res.status !== 200) {
+        toast.error(res.data.message || "Login failed. Please try again.");
+        return;
+      }
+      localStorage.setItem("token", res.data.token);
+      role.value = res.data.role;
+      toast.success("Login Successfully.");
+      router.push("/home");
+    } catch (error: any) {
+      toast.error(
+        error.response.data.message ||
+          "Email or Password error.Please try again.!"
+      );
+    }
+  };
+
+  const isAdmin = () => {
+    return role.value === "ADMIN";
+  };
+
+  const logout = () => {
+    (role.value = ""), localStorage.removeItem("token");
+  };
+
+  return { isAdmin, login, logout };
+});

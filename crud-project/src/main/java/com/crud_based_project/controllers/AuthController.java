@@ -29,4 +29,9 @@ public class AuthController {
     public ResponseEntity<RefreshToken> refreshTokenHandler(@RequestBody RefreshToken token) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.getRefreshToken(token));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutHandler(){
+        return ResponseEntity.status(HttpStatus.OK).body("Logout Successfully");
+    }
 }

@@ -35,6 +35,7 @@ public class AuthImplementation implements AuthService {
         return SignUpOrSignInDto.builder()
                 .token(token)
                 .refreshToken(refreshToken)
+                .role(user.getRole())
                 .build();
     }
 
@@ -47,6 +48,7 @@ public class AuthImplementation implements AuthService {
                 .role(ROLE.USER)
                 .isActive(true)
                 .build();
+        userRepository.save(user);
         return "Successfully Sign up. Please login.!";
     }
 
