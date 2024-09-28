@@ -2,7 +2,7 @@
   <div class="w-full h-screen flex justify-center items-center bg-gray-600">
     <div class="w-full max-w-xs">
       <form
-        @submit.prevent="loginHandler"
+        @submit.prevent="signUpHandler"
         class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
       >
         <div class="mb-4">
@@ -41,14 +41,14 @@
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="submit"
           >
-            <i class="pi pi-sign-in"></i> Sign In
+            <i class="pi pi-arrow-up"></i> Sign Up
           </button>
           <RouterLink
-            to="/sign-up"
+            to="/"
             class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
             href="#"
           >
-            <i class="pi pi-arrow-right"></i> Sign-up
+            <i class="pi pi-arrow-left"></i> Back to Login
           </RouterLink>
         </div>
       </form>
@@ -71,13 +71,13 @@ const password = ref<string>("");
 const toast = useToast();
 const main = useCounterStore();
 
-const { login } = main;
+const { signUp } = main;
 
-const loginHandler = async () => {
+const signUpHandler = async () => {
   if (email.value === "" || password.value === "") {
-    toast.error("Fields cannot be empty.!");
+    toast.error("Fields cannot be empty while signing up.!");
     return;
   }
-  await login(email.value, password.value);
+  await signUp(email.value, password.value);
 };
 </script>
