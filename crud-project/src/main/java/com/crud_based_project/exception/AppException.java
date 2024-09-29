@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public class AppException extends RuntimeException {
 
-    private final int status;
+    private final HttpStatus status;
 
-    public AppException(String message, int status) {
+    public AppException(String message, HttpStatus status) {
         super(message);
         this.status = status;
     }
