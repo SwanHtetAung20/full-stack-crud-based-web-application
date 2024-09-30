@@ -1,5 +1,13 @@
 <template>
-  <div class="flex justify-center items-center h-screen">
+  <div class="flex justify-center items-center h-screen flex-col">
+    <div class="flex justify-end mb-4 w-5/6">
+      <input
+        type="text"
+        placeholder="search..."
+        class="p-2 border border-blue-700 rounded"
+        v-model="search"
+      />
+    </div>
     <table>
       <thead>
         <tr class="text-center">
@@ -146,15 +154,17 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useCounterStore, type USER } from "../stores/counter";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useToast } from "vue-toastification";
 import BaseModel from "../components/BaseModel.vue";
 
 const main = useCounterStore();
 const toast = useToast();
 const modalActive = ref<boolean>(false);
+const search = ref<string>("");
 const userId = ref<string>("");
 const { userList } = storeToRefs(main);
+const originalUserList = ref<USER[]>([]);
 const selectedUser = ref<USER>({
   id: "",
   name: "",
@@ -166,6 +176,7 @@ const { logout } = main;
 
 onMounted(async () => {
   await findAll();
+  originalUserList.value = [...userList.value];
 });
 
 const triggerModal = (user?: USER) => {
@@ -202,4 +213,16 @@ const fileHandlerUpload = async (event: Event) => {
     upload(userId.value, file);
   }
 };
+
+watch(search, () => {
+  if (!search.value) {
+    userList.value = [...originalUserList.value];
+  } else {
+    userList.value = originalUserList.value.filter((user) =>
+      Object.values(user).some((value) =>
+        String(value).toLowerCase().includes(search.value.toLowerCase())
+      )
+    );
+  }
+});
 </script>
