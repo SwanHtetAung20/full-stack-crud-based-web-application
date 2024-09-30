@@ -112,19 +112,55 @@ export const useCounterStore = defineStore("main", () => {
 
   const updateHandler = async (id: string, obj: USER) => {
     try {
-      const res = await axios.put(`/api/admin/update/${id}`, obj);
+      const token = localStorage.getItem("token");
+      const res = await axios.put(`/api/admin/update/${id}`, obj, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.status !== 200) {
         toast.error(res.data.message || "Update failed. Please try again.!");
         return;
       }
       toast.success(res.data.message || "Successfully updated.!");
       const index = userList.value.findIndex((user: USER) => user.id === id);
+
       if (index !== -1) {
-        userList.value = res.data;
+        userList.value[index] = { ...userList.value[index], ...res.data };
       }
     } catch (error: any) {
       toast.error(
         error.response.data.message || "There was an error.Please try again.!"
+      );
+    }
+  };
+
+  const upload = async (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("file", file);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(`/api/admin/upload`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status !== 200) {
+        toast.error("Uploading failed. Please try again.!");
+        return;
+      }
+
+      toast.success("Successfully uploaded");
+      const index = userList.value.findIndex((user: USER) => user.id === id);
+      if (index !== -1) {
+        userList.value[index] = { ...userList.value[index], ...res.data };
+      }
+    } catch (error: any) {
+      toast.error(
+        error.response.data.message || "There was an error. Please try again.!"
       );
     }
   };
@@ -147,5 +183,6 @@ export const useCounterStore = defineStore("main", () => {
     updateHandler,
     deleteHandler,
     userList,
+    upload,
   };
 });

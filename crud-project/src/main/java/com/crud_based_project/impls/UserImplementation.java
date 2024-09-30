@@ -13,8 +13,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -23,6 +29,7 @@ import java.util.stream.StreamSupport;
 public class UserImplementation implements UserService {
 
     private final UserRepository userRepository;
+    // private final Cloudinary cloudinary;
 
     @Override
     public UserDetailsService userDetailsService() {
@@ -47,11 +54,46 @@ public class UserImplementation implements UserService {
 
     @Override
     public String delete(String id) {
-        try{
+        try {
             userRepository.deleteById(id);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new AppException(e.getMessage(), HttpStatus.EXPECTATION_FAILED);
         }
         return "Successfully Deleted.!";
     }
+
+    @Transactional
+    @Override
+    public UserDto update(String id, UserDto userDto) {
+        userRepository.findById(id).ifPresent(u -> {
+            u.setName(userDto.getName());
+            u.setEmail(userDto.getEmail());
+            u.setPhone(userDto.getPhone());
+            userRepository.save(u);
+        });
+        var user = userRepository.findById(id).orElseThrow();
+        return UserMapper.INSTANCE.userToUserDto(user);
+    }
+
+    @Transactional
+    @Override
+    public UserDto upload(String id, MultipartFile file) {
+        userRepository.findById(id).ifPresent(u -> {
+            if (file.isEmpty()) {
+                throw new AppException("file cannot be empty.!", HttpStatus.EXPECTATION_FAILED);
+            }
+            try {
+                byte[] photoBytes = file.getBytes();
+                String photo = Base64.getEncoder().encodeToString(photoBytes);
+                u.setPhoto(photo);
+                userRepository.save(u);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        var user = userRepository.findById(id).orElseThrow();
+        return UserMapper.INSTANCE.userToUserDto(user);
+    }
+
+
 }
